@@ -1,10 +1,13 @@
-package parser;
+package application;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Scanner;
 
-public class RecursiveDescentParser {
+import javafx.application.Platform;
+
+public class RDP {
 	// Define single character variables
 	final static char ADD_OP = '+';
 	final static char SUB_OP = '-';
@@ -39,36 +42,55 @@ public class RecursiveDescentParser {
 	static char lexeme[] = new char[100]; // buffer of 100
 	static FileInputStream file; // the file to be read from
 	static String filename; // the filename
-	static boolean hasProgramBegin = false; // set to true with "program begin" is at beginning of program
+	static boolean hasProgramBegin = false; // set to true when "program begin" is at beginning of program
+	static boolean hasError = false; // set to true when an error has occurred
+	static boolean hasProgram = false; // set to true when program keyword present
+	
+	// Constructor
+	public RDP(String filename) {
+		this.filename = filename;
+	}
 	
 	
 	//<-------------------------------PROGRAM--------------------------------
-	static void program() {		
-		// If the input is "program begin"
-		if(nextToken != PROGRAM) {
-			error();
-		} else {
+	static void program() {	
+		// Look for the first keyword program
+		if(nextToken == PROGRAM) {
+			// Set the boolean
+			hasProgram = true;
 			// Pass the program keyword
 			lex();
+		} else {
+			// Display the error
+			error("Missing program keyword from program");
 			
-			// Look for the second keyword begin
-			if(nextToken != BEGIN) {
-				error();
-			} else {
-				// Pass the begin keyword
-				lex();
-				
+			// Continue to see if there are more errors in the program
+//			lex();
+		}
+		
+		// Look for the second keyword begin
+		if(nextToken == BEGIN) {
+			// Pass the begin keyword
+			lex();
+			
+			if(hasProgram) {
 				// Set the hasProgramBegin boolean to true
 				hasProgramBegin = true;
-				
-				// Then call the statement_list function
-				statement_list();
-				
-				// Look for the end keyword
-				if(nextToken != END) {
-					error();
-				}
 			}
+			
+			// Then call the statement_list function
+			statement_list();
+		} else {
+			// Display the error
+			error("Missing begin keyword from program");
+			
+			// Continue to see if there are more errors in the program
+			statement_list();
+		}
+		
+		// Look for the end keyword if there have been no errors
+		if(nextToken != END && !hasError) {
+			error("Missing end keyword in program");
 		}
 	}
 	
@@ -83,8 +105,19 @@ public class RecursiveDescentParser {
 			// Pass the semicolon
 			lex();
 			
+			// If end is called after a semicolon
+			// A statement that has 'end' as the next token is incorrect (because then the 
+			// file can end with a semicolon -- which shouldn't be allowed)
+			if(nextToken == END) {
+				error("Extra semicolon at the end of statement_list");
+			}
+			
 			// Call the statement function
 			statement();
+		}
+		
+		if(nextToken != END) {
+			error("Missing semicolon from statement_list");
 		}
 	}
 	
@@ -99,12 +132,7 @@ public class RecursiveDescentParser {
 			loop_statement();
 		} else if(nextToken == IDENTIFIER){
 			assignment_statement();
-		// A statement that has 'end' as the next token is incorrect (because then the 
-		// file can end with a semicolon -- which shouldn't be allowed
-		} else if(nextToken == END){
-			error();
-		} 
-		
+		} 		
 	}
 	
 	
@@ -116,7 +144,7 @@ public class RecursiveDescentParser {
 		variable();
 		
 		if(nextToken != ASSIGN) {
-			error();
+			error("Missing assignment operator in assignment statement");
 		} else {
 			// Pass the assign operator
 			lex();
@@ -133,7 +161,7 @@ public class RecursiveDescentParser {
 		
 		// Ensuring that the first token is an 'if'
 		if(nextToken != IF_CODE) {
-			error();
+			error("Missing if keyword in if statement");
 			
 		// Otherwise, we have an 'if', get the next token
 		} else {
@@ -141,7 +169,7 @@ public class RecursiveDescentParser {
 			
 			// Look for the left parenthesis
 			if(nextToken != LEFT_PAREN) {
-				error();
+				error("Missing left parenthesis in if statement");
 			} else {
 				// Pass the left parenthesis
 				lex();
@@ -150,14 +178,14 @@ public class RecursiveDescentParser {
 				logic_expression();
 				
 				if(nextToken != RIGHT_PAREN) {
-					error();
+					error("Missing right parenthesis in if statement");
 				} else {
 					// Pass the right parenthesis
 					lex();
 					
 					// Look for the 'then' keyword
 					if(nextToken != THEN) {
-						error();
+						error("Missing then keyword in if statement");
 					} else {
 						// Pass the 'then' keyword
 						lex();
@@ -176,14 +204,14 @@ public class RecursiveDescentParser {
 		// reduces the statement to loop (<logic_expression>) <statement>
 		
 		if(nextToken != LOOP) {
-			error();
+			error("Missing loop keyword in loop statement");
 		} else {
 			// Pass the loop keyword
 			lex();
 			
 			// Look for the left parenthesis
 			if(nextToken != LEFT_PAREN) {
-				error();
+				error("Missing left parenthesis in loop statement");
 			} else {
 				// Pass the left parenthesis
 				lex();
@@ -193,7 +221,7 @@ public class RecursiveDescentParser {
 				
 				// Look for the right parenthesis
 				if(nextToken != RIGHT_PAREN) {
-					error();
+					error("Missing right parenthesis in loop statement");
 				} else {
 					// Pass the right parenthesis
 					lex();
@@ -253,6 +281,9 @@ public class RecursiveDescentParser {
 		if(nextToken == IDENTIFIER || nextToken == INT_CONSTANT) {
 			// Then we need to locate the next token in the stream
 			lex();
+		} else if(nextToken == END) {
+			error("Missing expression in assignment statement");
+		
 			
 		// Otherwise, the token is  ( <expression> ) we need to 
 		// check for the left parenthesis, expression in middle, and
@@ -270,10 +301,10 @@ public class RecursiveDescentParser {
 				if(nextToken == RIGHT_PAREN) {
 					lex();
 				} else {
-					error();
+					error("Missing right parenthesis in factor expression");
 				} 
 			} else {
-				error();
+				error("Missing left parenthesis in factor expression");
 			}
 		}
 	}
@@ -293,7 +324,7 @@ public class RecursiveDescentParser {
 			
 		// Otherwise, there is an error
 		} else {
-			error();
+			error("Missing comparison operator");
 		}
 		
 		// Parse the second variable
@@ -380,8 +411,8 @@ public class RecursiveDescentParser {
 				break;
 		}
 		
-		String lex = getLex().trim();
-		System.out.printf("The next token is: %d\tThe next lexeme is: %s\n", nextToken, lex);
+//		String lex = getLex().trim();
+//		System.out.printf("The next token is: %d\tThe next lexeme is: %s\n", nextToken, lex);
 		
 		return nextToken;
 	}
@@ -456,7 +487,7 @@ public class RecursiveDescentParser {
 			lexeme[lexLen] = 0;
 		} else {
 			System.out.print("Error! The lexeme has exceeded the buffer space.");
-			error();
+			error("Lexeme too long");
 		}
 	}
 	
@@ -499,70 +530,79 @@ public class RecursiveDescentParser {
 		
 	
 	//<-------------------------------ERROR--------------------------------
-	static void error() {
-		System.out.print("\nError in file " + filename + " - program terminating.\nThe "
-				+ "program is NOT correct, there is a syntax error.\n");
-		System.exit(1);
+	static void error(String errorMsg) {
+		hasError = true;
+//		System.out.print("\nError in file " + filename + " - program terminating.\n" + errorMsg);
+		// Output the error to the errors textarea
+//		RecursiveDescentParser.errorTA.setText(errorMsg);
+		RecursiveDescentParser.errorTA.appendText(errorMsg + "\n");
+		// TODO: instead of ending the program, the user should be able to edit the file contents and re-submit
+		// probably don't have to do anything fancy for this
+//		Platform.exit();
 	}
 		
 	
 	
-	//<-------------------------------MAIN--------------------------------
+	//<-------------------------------START--------------------------------
 	// Main Method to run the program
-	public static void main(String[] args) {
-		// Create a Scanner
-		Scanner input = new Scanner(System.in);
-		
-		// Prompt the user to enter the filename
-		System.out.print("Enter the filename you wish to test: ");
-		filename = input.next() + ".txt"; // OR you can use the test files below
-		// TEST FILES
-//		String filename = "NoErrors.txt";
-//		String filename = "MissingThen.txt";
-//		String filename = "BeginMissing.txt";
-//		String filename = "ExtraSemicolon.txt";
-//		String filename = "IfMisspelled.txt";
-//		String filename = "SemicolonMissing.txt";
-		
+	public void start() {
 		try {
 			// Open the txt file
-			file = new FileInputStream("./src/parser/" + filename);
+			file = new FileInputStream("./" + filename);
 			
-			// If the file is null/nonexistent
-			if(file == null) {
-				System.out.print("The file cannot be opened or does not exist.");
+			// Reset the errors boolean
+			hasError = false;
+		
+			// Process the file contents
+			getChar();
 			
-			// Else, process the file contents
-			} else {
-				getChar();
-				
-				do {
-					lex();
-					
-					// If we have hit a PROGRAM lexeme
-					if(nextToken == PROGRAM) {
-						program();
-					}
-					
-					// If the "program begin" keywords did not exist
-					if(!hasProgramBegin) {
-						error();
-					}
-					
-				// Loop until we are at the end of the file
-				} while(nextToken != EOF);
-				
-				// If we make it to this point without any errors, display a success message
-				System.out.print("\nCONGRATS! The program is correct, there are no syntax errors in file '" + filename + "'\n");
+			// Get the first lexeme
+			lex();
+			
+			// Start the parser
+			program();
+			
+			// If the "program begin" keywords did not exist
+//			if(!hasProgramBegin) {
+//				error("Missing begin from program");
+//			}
+			
+//			do {
+//				lex();
+//				
+////				// If we have hit a PROGRAM lexeme
+////				if(nextToken == PROGRAM) {
+////					program();
+////				} 
+//				
+//				// Call the program function to start the parser
+//				program();
+//				
+//				
+//				// If the "program begin" keywords did not exist
+//				if(!hasProgramBegin) {
+//					error("Missing begin from program");
+//				}
+//				
+//				if(hasError) {
+//					break;
+//				}
+//				
+//			// Loop until we are at the end of the file
+//			} while(nextToken != EOF);
+			
+			// If we make it to this point without any errors, display a success message
+			if(!hasError) {
+//				System.out.print("\nThere are no syntax errors in file '" + filename + "'\n");
+				RecursiveDescentParser.errorTA.setStyle("-fx-text-fill: green");
+				RecursiveDescentParser.errorTA.setText("Syntax parsed without errors.");
+				RecursiveDescentParser.checkmark.setVisible(true);
 			}
-			
+		
 		// Catch if the file does not exist
 		} catch (IOException e) {
 			System.out.print("File: " + filename + " does not exist.\n");
 			e.printStackTrace();
 		}
-		
-		// Close the input
-		input.close();
-	}
+	}	
 }

@@ -6,4 +6,3 @@ if (sum1 < sum2) then
      var4 = sum2 - sum1
 
 end
-
