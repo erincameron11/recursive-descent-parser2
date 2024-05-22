@@ -41,10 +41,12 @@ public class RDP {
 	static boolean hasProgramBegin = false; // set to true when "program begin" is at beginning of program
 	static boolean hasError = false; // set to true when an error has occurred
 	static boolean hasProgram = false; // set to true when program keyword present
+	static int lineNumber;
 	
 	// Constructor
 	public RDP(String filename) {
 		this.filename = filename;
+		lineNumber = 0;
 	}
 	
 	
@@ -58,7 +60,7 @@ public class RDP {
 			lex();
 		} else {
 			// Display the error
-			error("Missing program keyword from program");
+			error("Keyword Error", "Missing program keyword from program");
 			
 			// Continue to see if there are more errors in the program
 		}
@@ -78,7 +80,7 @@ public class RDP {
 			statement_list();
 		} else {
 			// Display the error
-			error("Missing begin keyword from program");
+			error("Keyword Error", "Missing begin keyword from program");
 			
 			// Continue to see if there are more errors in the program
 			statement_list();
@@ -86,7 +88,7 @@ public class RDP {
 		
 		// Look for the end keyword if there have been no errors
 		if(nextToken != END && !hasError) {
-			error("Missing end keyword in program");
+			error("Keyword Error", "Missing end keyword in program");
 		}
 	}
 	
@@ -105,7 +107,7 @@ public class RDP {
 			// A statement that has 'end' as the next token is incorrect (because then the 
 			// file can end with a semicolon -- which shouldn't be allowed)
 			if(nextToken == END) {
-				error("Extra semicolon at the end of statement_list");
+				error("Syntax Error", "Extra semicolon at the end of statement_list");
 			}
 			
 			// Call the statement function
@@ -113,7 +115,7 @@ public class RDP {
 		}
 		
 		if(nextToken != END) {
-			error("Missing semicolon from statement_list");
+			error("Syntax Error", "Missing semicolon from statement_list");
 		}
 	}
 	
@@ -140,7 +142,7 @@ public class RDP {
 		variable();
 		
 		if(nextToken != ASSIGN) {
-			error("Missing assignment operator in assignment statement");
+			error("Syntax Error", "Missing assignment operator in assignment statement");
 		} else {
 			// Pass the assign operator
 			lex();
@@ -157,7 +159,7 @@ public class RDP {
 		
 		// Ensuring that the first token is an 'if'
 		if(nextToken != IF_CODE) {
-			error("Missing if keyword in if statement");
+			error("Keyword Error", "Missing if keyword in if statement");
 			
 		// Otherwise, we have an 'if', get the next token
 		} else {
@@ -166,7 +168,7 @@ public class RDP {
 			
 			// Look for the left parenthesis
 			if(nextToken != LEFT_PAREN) {
-				error("Missing left parenthesis in if statement");
+				error("Syntax Error", "Missing left parenthesis in if statement");
 			} else {
 				// Pass the left parenthesis
 				lex();
@@ -175,14 +177,14 @@ public class RDP {
 				logic_expression();
 				
 				if(nextToken != RIGHT_PAREN) {
-					error("Missing right parenthesis in if statement");
+					error("Syntax Error", "Missing right parenthesis in if statement");
 				} else {
 					// Pass the right parenthesis
 					lex();
 					
 					// Look for the 'then' keyword
 					if(nextToken != THEN) {
-						error("Missing then keyword in if statement");
+						error("Keyword Error", "Missing then keyword in if statement");
 					} else {
 						// Pass the 'then' keyword
 						lex();
@@ -201,14 +203,14 @@ public class RDP {
 		// reduces the statement to loop (<logic_expression>) <statement>
 		
 		if(nextToken != LOOP) {
-			error("Missing loop keyword in loop statement");
+			error("Keyword Error", "Missing loop keyword in loop statement");
 		} else {
 			// Pass the loop keyword
 			lex();
 			
 			// Look for the left parenthesis
 			if(nextToken != LEFT_PAREN) {
-				error("Missing left parenthesis in loop statement");
+				error("Syntax Error", "Missing left parenthesis in loop statement");
 			} else {
 				// Pass the left parenthesis
 				lex();
@@ -218,7 +220,7 @@ public class RDP {
 				
 				// Look for the right parenthesis
 				if(nextToken != RIGHT_PAREN) {
-					error("Missing right parenthesis in loop statement");
+					error("Syntax Error", "Missing right parenthesis in loop statement");
 				} else {
 					// Pass the right parenthesis
 					lex();
@@ -279,7 +281,7 @@ public class RDP {
 			// Then we need to locate the next token in the stream
 			lex();
 		} else if(nextToken == END) {
-			error("Missing expression in assignment statement");
+			error("Syntax Error", "Missing expression in assignment statement");
 		
 			
 		// Otherwise, the token is  ( <expression> ) we need to 
@@ -298,10 +300,10 @@ public class RDP {
 				if(nextToken == RIGHT_PAREN) {
 					lex();
 				} else {
-					error("Missing right parenthesis in factor expression");
+					error("Syntax Error", "Missing right parenthesis in factor expression");
 				} 
 			} else {
-				error("Missing left parenthesis in factor expression");
+				error("Syntax Error", "Missing left parenthesis in factor expression");
 			}
 		}
 	}
@@ -321,7 +323,7 @@ public class RDP {
 			
 		// Otherwise, there is an error
 		} else {
-			error("Missing comparison operator");
+			error("Syntax Error", "Missing comparison operator");
 		}
 		
 		// Parse the second variable
@@ -468,6 +470,10 @@ public class RDP {
 	static void getNonBlank() {
 		// While the next input is a whitespace, continue past it
 		while(Character.isWhitespace(nextChar) || nextChar == '\n') {
+			// Increase the line number
+			if(nextChar == '\n') {
+				lineNumber++;
+			}
 			getChar();
 		}
 	}
@@ -479,8 +485,7 @@ public class RDP {
 			lexeme[lexLen++] = nextChar;
 			lexeme[lexLen] = 0;
 		} else {
-			System.out.print("Error! The lexeme has exceeded the buffer space.");
-			error("Lexeme too long");
+			error("Overflow Error", "Lexeme " + getLex() + " too long");
 		}
 	}
 	
@@ -524,12 +529,13 @@ public class RDP {
 		
 	
 	//<-------------------------------ERROR--------------------------------
-	static void error(String errorMsg) {
+	static void error(String errorType, String errorMsg) {
 		// Set the error flag
 		hasError = true;
 		
 		// Append the error text to the error log
-		RecursiveDescentParser.errorTA.appendText(errorMsg + "\n");
+		lineNumber--;
+		RecursiveDescentParser.errorTA.appendText(errorType + ": line " + lineNumber + " -- " + errorMsg + "\n");
 	}
 		
 	
@@ -541,8 +547,9 @@ public class RDP {
 			// Open the txt file
 			file = new FileInputStream("./" + filename);
 			
-			// Reset the errors boolean
+			// Reset the errors boolean and lineNumber
 			hasError = false;
+			lineNumber = 0;
 			
 			// Get the first lexeme
 			lex();

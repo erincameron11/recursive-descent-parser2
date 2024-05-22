@@ -35,6 +35,8 @@ public class RecursiveDescentParser extends Application {
 			
 			// Create a title
 			Text title = new Text("Recursive Descent Parser");
+			title.setStyle("-fx-font-size: 32px");
+			BorderPane.setMargin(title, new Insets(20));
 			
 			// Create a textfield for filename
 			Label fileLabel = new Label("Filename: ");
@@ -52,9 +54,11 @@ public class RecursiveDescentParser extends Application {
 			// Create an error log
 			Label errorLabel = new Label("Syntax Error Log: ");
 			errorTA = new TextArea();
-			
-			VBox vbox = new VBox();
+		
+			// Add all to a vbox and root
+			VBox vbox = new VBox(10);
 			vbox.getChildren().addAll(fileLabel, fileAndExtension, codeLabel, codeAndCheckmark, errorLabel, errorTA);
+			BorderPane.setMargin(vbox, new Insets(10, 20, 50, 20));
 			
 			// Create two buttons
 			Button submitBtn = new Button("Submit");
@@ -112,7 +116,7 @@ public class RecursiveDescentParser extends Application {
 				// Call the recursive descent parser
 				if(text == "") {
 					// Display an error message
-					RDP.error("File \'" + filename + "\' is empty.");
+					RDP.error("File Error", "File \'" + filename + "\' is empty.");
 				} else {
 					rdp.start();
 				}
