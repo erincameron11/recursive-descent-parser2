@@ -20,8 +20,7 @@ import javafx.scene.text.Text;
 
 
 public class RecursiveDescentParser extends Application {
-	public static TextArea errorTA = new TextArea();
-	public static Text errorText = new Text();
+	public static TextArea errorTA;
 	public static Text checkmark = new Text("\u2713");
 	
 	@Override
@@ -43,19 +42,16 @@ public class RecursiveDescentParser extends Application {
 			Text extension = new Text(".txt");
 			HBox fileAndExtension = new HBox();
 			fileAndExtension.getChildren().addAll(fileTF, extension);
-//			VBox fileHB = new VBox();
-//			fileHB.getChildren().addAll(fileLabel, tf);
 			
 			// Create a textarea for code
 			Label codeLabel = new Label("Input Code: ");
 			TextArea codeTA = new TextArea();
 			HBox codeAndCheckmark = new HBox();
 			codeAndCheckmark.getChildren().addAll(codeTA, checkmark);
-//			VBox codeHB = new VBox();
 			
 			// Create an error log
 			Label errorLabel = new Label("Syntax Error Log: ");
-//			TextArea errorTA = new TextArea();
+			errorTA = new TextArea();
 			
 			VBox vbox = new VBox();
 			vbox.getChildren().addAll(fileLabel, fileAndExtension, codeLabel, codeAndCheckmark, errorLabel, errorTA);
@@ -67,22 +63,11 @@ public class RecursiveDescentParser extends Application {
 			btnHBox.getChildren().addAll(submitBtn, clearBtn);
 			
 			// Set the items in the root
-//			root.setTop(fileHB);
 			root.setTop(title);
 			root.setCenter(vbox);	
 			root.setBottom(btnHBox);
 			
-			// Styling
-//			root.setStyle("-fx-background-color: black");
-//			fileLabel.setStyle("-fx-text-fill: white");
-//			fileTF.setStyle("-fx-background-color: black; -fx-text-fill: white; -fx-border-color: white; -fx-border-radius: 5px");
-//			fileTF.setPadding(new Insets(10, 0, 10, 10));
-//			codeLabel.setStyle("-fx-text-fill: white");
-//			codeTA.setStyle("-fx-background-color: black; -fx-text-fill: white");
-//			codeTA.setPadding(new Insets(10, 0, 10, 10));
-//			errorLabel.setStyle("-fx-text-fill: white");
-//			codeTA.setPadding(new Insets(10, 0, 10, 10));
-//			submitBtn.setStyle("-fx-color: white");
+			// Styling for error text and checkmark
 			errorTA.setEditable(false);
 			errorTA.setStyle("-fx-text-fill: red");
 			checkmark.setStyle("-fx-font-size: 24px");
@@ -91,8 +76,10 @@ public class RecursiveDescentParser extends Application {
 			
 			// Event handlers
 			submitBtn.setOnAction(e -> {
-				// TODO: Clear the errorTA if it was previously set
+				// Reset the error text, and remove checkmark if it was previously set
 				errorTA.setText("");
+				errorTA.setStyle("-fx-text-fill: red");
+				checkmark.setVisible(false);
 				
 				String filename = fileTF.getText() + ".txt";
 				String text = codeTA.getText();

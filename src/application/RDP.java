@@ -1,11 +1,7 @@
 package application;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Scanner;
-
-import javafx.application.Platform;
 
 public class RDP {
 	// Define single character variables
@@ -65,7 +61,6 @@ public class RDP {
 			error("Missing program keyword from program");
 			
 			// Continue to see if there are more errors in the program
-//			lex();
 		}
 		
 		// Look for the second keyword begin
@@ -73,6 +68,7 @@ public class RDP {
 			// Pass the begin keyword
 			lex();
 			
+			// If the program keyword exists
 			if(hasProgram) {
 				// Set the hasProgramBegin boolean to true
 				hasProgramBegin = true;
@@ -165,6 +161,7 @@ public class RDP {
 			
 		// Otherwise, we have an 'if', get the next token
 		} else {
+			// Pass the if keyword
 			lex();
 			
 			// Look for the left parenthesis
@@ -334,13 +331,12 @@ public class RDP {
 	
 	//<-------------------------------LEX--------------------------------
 	static int lex() {
+		// Pass any whitespace or newline characters
+		getNonBlank();
 		
 		// Reset the lexeme buffer each run
 		lexeme = new char[100];
 		lexLen = 0;
-		
-		// Pass any whitespace or newline characters
-		getNonBlank();
 		
 		switch(charClass) {
 			/* -----LETTER CHARCLASS----- */
@@ -411,9 +407,6 @@ public class RDP {
 				break;
 		}
 		
-//		String lex = getLex().trim();
-//		System.out.printf("The next token is: %d\tThe next lexeme is: %s\n", nextToken, lex);
-		
 		return nextToken;
 	}
 	
@@ -474,7 +467,7 @@ public class RDP {
 	//<-------------------------------GETNONBLANK--------------------------------
 	static void getNonBlank() {
 		// While the next input is a whitespace, continue past it
-		while(Character.isWhitespace(nextChar)) {
+		while(Character.isWhitespace(nextChar) || nextChar == '\n') {
 			getChar();
 		}
 	}
@@ -496,6 +489,7 @@ public class RDP {
 	static void getChar() {
 		// If it is not EOF
 		try {
+			// Reads a single byte from the input stream
 			if((nextChar = (char)file.read()) != EOF) {
 				// If it is an alphabetic character
 				if(Character.isAlphabetic(nextChar)) {
@@ -531,30 +525,24 @@ public class RDP {
 	
 	//<-------------------------------ERROR--------------------------------
 	static void error(String errorMsg) {
+		// Set the error flag
 		hasError = true;
-//		System.out.print("\nError in file " + filename + " - program terminating.\n" + errorMsg);
-		// Output the error to the errors textarea
-//		RecursiveDescentParser.errorTA.setText(errorMsg);
+		
+		// Append the error text to the error log
 		RecursiveDescentParser.errorTA.appendText(errorMsg + "\n");
-		// TODO: instead of ending the program, the user should be able to edit the file contents and re-submit
-		// probably don't have to do anything fancy for this
-//		Platform.exit();
 	}
 		
 	
 	
 	//<-------------------------------START--------------------------------
 	// Main Method to run the program
-	public void start() {
+	public void start() {		
 		try {
 			// Open the txt file
 			file = new FileInputStream("./" + filename);
 			
 			// Reset the errors boolean
 			hasError = false;
-		
-			// Process the file contents
-			getChar();
 			
 			// Get the first lexeme
 			lex();
@@ -562,38 +550,8 @@ public class RDP {
 			// Start the parser
 			program();
 			
-			// If the "program begin" keywords did not exist
-//			if(!hasProgramBegin) {
-//				error("Missing begin from program");
-//			}
-			
-//			do {
-//				lex();
-//				
-////				// If we have hit a PROGRAM lexeme
-////				if(nextToken == PROGRAM) {
-////					program();
-////				} 
-//				
-//				// Call the program function to start the parser
-//				program();
-//				
-//				
-//				// If the "program begin" keywords did not exist
-//				if(!hasProgramBegin) {
-//					error("Missing begin from program");
-//				}
-//				
-//				if(hasError) {
-//					break;
-//				}
-//				
-//			// Loop until we are at the end of the file
-//			} while(nextToken != EOF);
-			
 			// If we make it to this point without any errors, display a success message
 			if(!hasError) {
-//				System.out.print("\nThere are no syntax errors in file '" + filename + "'\n");
 				RecursiveDescentParser.errorTA.setStyle("-fx-text-fill: green");
 				RecursiveDescentParser.errorTA.setText("Syntax parsed without errors.");
 				RecursiveDescentParser.checkmark.setVisible(true);
