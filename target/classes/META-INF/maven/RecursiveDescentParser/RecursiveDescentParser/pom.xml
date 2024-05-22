@@ -3,6 +3,61 @@
   <groupId>RecursiveDescentParser</groupId>
   <artifactId>RecursiveDescentParser</artifactId>
   <version>0.0.1-SNAPSHOT</version>
+  <properties>
+    <javafx.version>21.0.1</javafx.version>
+    <javafx.maven.plugin.version>0.0.8</javafx.maven.plugin.version>
+  </properties>
+  
+  <dependencies>
+  	<dependency>
+  		<groupId>org.junit.jupiter</groupId>
+  		<artifactId>junit-jupiter-api</artifactId>
+  		<version>5.10.2</version>
+  		<scope>test</scope>
+  	</dependency>
+  	<dependency>
+  		<groupId>org.openjfx</groupId>
+  		<artifactId>javafx-controls</artifactId>
+  		<version>21.0.1</version>
+  	</dependency>
+  	<dependency>
+  		<groupId>org.openjfx</groupId>
+  		<artifactId>javafx-fxml</artifactId>
+  		<version>21.0.1</version>
+  	</dependency>
+  	<dependency>
+  		<groupId>org.mockito</groupId>
+  		<artifactId>mockito-junit-jupiter</artifactId>
+  		<version>5.11.0</version>
+  	</dependency>
+	<dependency>
+        <groupId>org.openjfx</groupId>
+        <artifactId>javafx-base</artifactId>
+        <version>21.0.1</version>
+    </dependency>
+    <dependency>
+        <groupId>org.openjfx</groupId>
+        <artifactId>javafx-graphics </artifactId>
+        <version>21.0.1</version>
+        <classifier>win</classifier>
+    </dependency>
+	<dependency>
+        <groupId>org.openjfx</groupId>
+        <artifactId>javafx-swing</artifactId>
+        <version>21.0.1</version>
+    </dependency>
+    <dependency>
+        <groupId>org.openjfx</groupId>
+        <artifactId>javafx-web</artifactId>
+        <version>21.0.1</version>
+    </dependency>
+    <dependency>
+        <groupId>org.openjfx</groupId>
+        <artifactId>javafx-media</artifactId>
+        <version>21.0.1</version>
+    </dependency>
+  </dependencies>
+  
   <build>
     <sourceDirectory>src</sourceDirectory>
     <resources>
@@ -31,22 +86,5 @@
     </plugin>
     </plugins>
   </build>
-  <dependencies>
-  	<dependency>
-  		<groupId>org.junit.jupiter</groupId>
-  		<artifactId>junit-jupiter-api</artifactId>
-  		<version>5.10.2</version>
-  		<scope>test</scope>
-  	</dependency>
-  	<dependency>
-  		<groupId>org.openjfx</groupId>
-  		<artifactId>javafx-controls</artifactId>
-  		<version>21.0.1</version>
-  	</dependency>
-  	<dependency>
-  		<groupId>org.openjfx</groupId>
-  		<artifactId>javafx-fxml</artifactId>
-  		<version>21.0.1</version>
-  	</dependency>
-  </dependencies>
+  
 </project>
