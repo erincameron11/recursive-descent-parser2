@@ -155,6 +155,5 @@ class RecursiveDescentParserTest {
 		assertEquals('=', RecursiveDescentParser.nextChar);
 		assertEquals(RecursiveDescentParser.OTHER, RecursiveDescentParser.charClass);
 	}
-	
 
 }

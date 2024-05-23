@@ -5,15 +5,7 @@ import java.io.IOException;
 
 public class RecursiveDescentParser {
 	// Default no-arg constructor
-	public RecursiveDescentParser() {
-		// For JUnit tests
-	}
-	
-	// TESTING
-	public int add(int numberA, int numberB) {
-		return numberA + numberB;
-	}
-	
+	public RecursiveDescentParser() { /* For JUnit tests */ }	
 	
 	// Define single character variables
 	public final static char ADD_OP = '+';
@@ -31,14 +23,14 @@ public class RecursiveDescentParser {
 	public final static int LETTER = 0; // identifier
 	public final static int DIGIT = 1; // integer constant
 	public final static int OTHER = 3; // for operations, parenthesis, etc
-	final static int IDENTIFIER = 11; // for variable names
-	final static char INT_CONSTANT = 10; // for integer values
-	final static char IF_CODE = 31; // if statements
-	final static char THEN = 30; // if statements
-	final static char END = 29; // end of a program
-	final static char LOOP = 28; // loop statements
-	final static char PROGRAM = 27; // beginning of a program
-	final static char BEGIN = 26; // beginning of a program
+	public final static int IDENTIFIER = 11; // for variable names
+	public final static char INT_CONSTANT = 10; // for integer values
+	public final static char IF_CODE = 31; // if statements
+	public final static char THEN = 30; // if statements
+	public final static char END = 29; // end of a program
+	public final static char LOOP = 28; // loop statements
+	public final static char PROGRAM = 27; // beginning of a program
+	public final static char BEGIN = 26; // beginning of a program
 	public final static int EOF = 99; // end of file
 	
 	// Declare variables
@@ -71,7 +63,7 @@ public class RecursiveDescentParser {
 			lex();
 		} else {
 			// Display the error
-			error("Keyword Error", "Missing program keyword from program");
+			error("Keyword Error", "\'program\' keyword expected");
 			
 			// Continue to see if there are more errors in the program
 		}
@@ -91,7 +83,7 @@ public class RecursiveDescentParser {
 			statement_list();
 		} else {
 			// Display the error
-			error("Keyword Error", "Missing begin keyword from program");
+			error("Keyword Error", "\'begin\' keyword expected");
 			
 			// Continue to see if there are more errors in the program
 			statement_list();
@@ -99,7 +91,7 @@ public class RecursiveDescentParser {
 		
 		// Look for the end keyword if there have been no errors
 		if(nextToken != END && !hasError) {
-			error("Keyword Error", "Missing end keyword in program");
+			error("Keyword Error", "\'end\' keyword expected");
 		}
 	}
 	
@@ -118,7 +110,7 @@ public class RecursiveDescentParser {
 			// A statement that has 'end' as the next token is incorrect (because then the 
 			// file can end with a semicolon -- which shouldn't be allowed)
 			if(nextToken == END) {
-				error("Syntax Error", "Extra semicolon at the end of statement_list");
+				error("Syntax Error", "Unnecessary \';\' found at the end of the statement");
 			}
 			
 			// Call the statement function
@@ -126,7 +118,7 @@ public class RecursiveDescentParser {
 		}
 		
 		if(nextToken != END) {
-			error("Syntax Error", "Missing semicolon from statement_list");
+			error("Syntax Error", "Expected \';\' at the end of the statement");
 		}
 	}
 	
@@ -153,7 +145,7 @@ public class RecursiveDescentParser {
 		variable();
 		
 		if(nextToken != ASSIGN) {
-			error("Syntax Error", "Missing assignment operator in assignment statement");
+			error("Syntax Error", "Expected \'=\' in assignment statement");
 		} else {
 			// Pass the assign operator
 			lex();
@@ -170,7 +162,7 @@ public class RecursiveDescentParser {
 		
 		// Ensuring that the first token is an 'if'
 		if(nextToken != IF_CODE) {
-			error("Keyword Error", "Missing if keyword in if statement");
+			error("Keyword Error", "\'if\' keyword expected");
 			
 		// Otherwise, we have an 'if', get the next token
 		} else {
@@ -179,7 +171,7 @@ public class RecursiveDescentParser {
 			
 			// Look for the left parenthesis
 			if(nextToken != LEFT_PAREN) {
-				error("Syntax Error", "Missing left parenthesis in if statement");
+				error("Syntax Error", "Mismatched parenthesis: Expected \'(\' in if statement");
 			} else {
 				// Pass the left parenthesis
 				lex();
@@ -188,14 +180,14 @@ public class RecursiveDescentParser {
 				logic_expression();
 				
 				if(nextToken != RIGHT_PAREN) {
-					error("Syntax Error", "Missing right parenthesis in if statement");
+					error("Syntax Error", "Mismatched parenthesis: Expected \')\' in if statement");
 				} else {
 					// Pass the right parenthesis
 					lex();
 					
 					// Look for the 'then' keyword
 					if(nextToken != THEN) {
-						error("Keyword Error", "Missing then keyword in if statement");
+						error("Keyword Error", "\'then\' keyword expected at the end of the if statement");
 					} else {
 						// Pass the 'then' keyword
 						lex();
@@ -214,14 +206,14 @@ public class RecursiveDescentParser {
 		// reduces the statement to loop (<logic_expression>) <statement>
 		
 		if(nextToken != LOOP) {
-			error("Keyword Error", "Missing loop keyword in loop statement");
+			error("Keyword Error", "\'loop\' keyword expected in loop statement");
 		} else {
 			// Pass the loop keyword
 			lex();
 			
 			// Look for the left parenthesis
 			if(nextToken != LEFT_PAREN) {
-				error("Syntax Error", "Missing left parenthesis in loop statement");
+				error("Syntax Error", "Mismatched parenthesis: Expected \'(\' in loop statement");
 			} else {
 				// Pass the left parenthesis
 				lex();
@@ -231,7 +223,7 @@ public class RecursiveDescentParser {
 				
 				// Look for the right parenthesis
 				if(nextToken != RIGHT_PAREN) {
-					error("Syntax Error", "Missing right parenthesis in loop statement");
+					error("Syntax Error", "Mismatched parenthesis: Expected \')\' in loop statement");
 				} else {
 					// Pass the right parenthesis
 					lex();
@@ -292,7 +284,7 @@ public class RecursiveDescentParser {
 			// Then we need to locate the next token in the stream
 			lex();
 		} else if(nextToken == END) {
-			error("Syntax Error", "Missing expression in assignment statement");
+			error("Syntax Error", "Expected expression in assignment statement");
 		
 			
 		// Otherwise, the token is  ( <expression> ) we need to 
@@ -311,10 +303,10 @@ public class RecursiveDescentParser {
 				if(nextToken == RIGHT_PAREN) {
 					lex();
 				} else {
-					error("Syntax Error", "Missing right parenthesis in factor expression");
+					error("Syntax Error", "Mismatched parenthesis: Expected \')\' in factor expression");
 				} 
 			} else {
-				error("Syntax Error", "Missing left parenthesis in factor expression");
+				error("Syntax Error", "Mismatched parenthesis: Expected \'(\' in factor expression");
 			}
 		}
 	}
@@ -334,7 +326,7 @@ public class RecursiveDescentParser {
 			
 		// Otherwise, there is an error
 		} else {
-			error("Syntax Error", "Missing comparison operator");
+			error("Syntax Error", "Expected comparison operator in logic expression statement");
 		}
 		
 		// Parse the second variable
@@ -343,7 +335,7 @@ public class RecursiveDescentParser {
 	
 	
 	//<-------------------------------LEX--------------------------------
-	static int lex() {
+	public static int lex() {
 		// Pass any whitespace or newline characters
 		getNonBlank();
 		
@@ -522,7 +514,7 @@ public class RecursiveDescentParser {
 				charClass = EOF;
 			}
 		} catch (IOException e) {
-			System.out.print("Error - getChar() file read error.\n");
+			error("File Error", "File read error");
 			e.printStackTrace();
 		} 
 	}
@@ -585,7 +577,7 @@ public class RecursiveDescentParser {
 		
 		// Catch if the file does not exist
 		} catch (IOException e) {
-			System.out.print("File: " + filename + " does not exist.\n");
+			error("File Error", "File " + filename + " does not exist.");
 			e.printStackTrace();
 		}
 	}	
