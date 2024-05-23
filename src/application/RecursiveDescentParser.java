@@ -16,16 +16,16 @@ public class RecursiveDescentParser {
 	
 	
 	// Define single character variables
-	final static char ADD_OP = '+';
-	final static char SUB_OP = '-';
-	final static char MULT_OP = '*';
-	final static char DIV_OP = '/';
-	final static char LEFT_PAREN = '(';
-	final static char RIGHT_PAREN = ')';
-	final static char SEMI = ';';
-	final static char ASSIGN = '=';
-	final static char GREATER = '>';
-	final static char LESS = '<';
+	public final static char ADD_OP = '+';
+	public final static char SUB_OP = '-';
+	public final static char MULT_OP = '*';
+	public final static char DIV_OP = '/';
+	public final static char LEFT_PAREN = '(';
+	public final static char RIGHT_PAREN = ')';
+	public final static char SEMI = ';';
+	public final static char ASSIGN = '=';
+	public final static char GREATER = '>';
+	public final static char LESS = '<';
 	
 	// Character class variables
 	public final static int LETTER = 0; // identifier
@@ -42,7 +42,7 @@ public class RecursiveDescentParser {
 	public final static int EOF = 99; // end of file
 	
 	// Declare variables
-	static int nextToken; // the next numeric char value
+	public static int nextToken; // the next numeric char value
 	public static int charClass; // the numeric class of the char
 	static int lexLen; // how long a lexeme is
 	public static char nextChar;
@@ -426,7 +426,7 @@ public class RecursiveDescentParser {
 	
 	//<-------------------------------LOOKUP--------------------------------
 	// To determine the code for single special characters
-	static int lookup(char c) {
+	public static int lookup(char c) {
 		switch(c) {
 			case '(':
 				addChar();
@@ -491,7 +491,7 @@ public class RecursiveDescentParser {
 	
 	
 	//<-------------------------------ADDCHAR--------------------------------
-	static void addChar() {
+	public static void addChar() {
 		if(lexLen <= 98) {
 			lexeme[lexLen++] = nextChar;
 			lexeme[lexLen] = 0;
