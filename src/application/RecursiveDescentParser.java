@@ -54,7 +54,10 @@ public class RecursiveDescentParser {
 	
 	//<-------------------------------PROGRAM--------------------------------
 	static void program() {	
+		// Get the first lexeme
+		lex();
 		lineNumber = 1;
+		
 		// Look for the first keyword program
 		if(nextToken == PROGRAM) {
 			// Set the boolean
@@ -561,9 +564,7 @@ public class RecursiveDescentParser {
 			// Reset the errors boolean and lineNumber
 			hasError = false;
 			lineNumber = 0;
-			
-			// Get the first lexeme
-			lex();
+		
 			
 			// Start the parser
 			program();
