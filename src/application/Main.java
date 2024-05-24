@@ -83,6 +83,7 @@ public class Main extends Application {
 			
 			
 			// Event handlers
+			// Event handler for submit button
 			submitBtn.setOnAction(e -> {
 				// Reset the error text, and remove checkmark if it was previously set
 				errorTA.setText("");
@@ -97,10 +98,7 @@ public class Main extends Application {
 				
 				try {
 					// Create a new file (or overwrite existing file)
-					file.createNewFile();
-						// TODO: ERROR -- alert the person the file already exists
-						// Quit the application ?? Or do nothing and make the user try again
-						// OR -- just overwrite the file	
+					file.createNewFile();	
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
@@ -128,6 +126,7 @@ public class Main extends Application {
 			});
 			
 			
+			// Event handler for clear button
 			clearBtn.setOnAction(e -> {
 				// Clear all form fields
 				fileTF.setText("");

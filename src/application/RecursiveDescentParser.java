@@ -44,7 +44,7 @@ public class RecursiveDescentParser {
 	static boolean hasProgramBegin = false; // set to true when "program begin" is at beginning of program
 	static boolean hasError = false; // set to true when an error has occurred
 	static boolean hasProgram = false; // set to true when program keyword present
-	static int lineNumber;
+	static int lineNumber; // to track the line number
 	
 	// Constructor
 	public RecursiveDescentParser(String filename) {
@@ -111,7 +111,7 @@ public class RecursiveDescentParser {
 			
 			// If end is called after a semicolon
 			// A statement that has 'end' as the next token is incorrect (because then the 
-			// file can end with a semicolon -- which shouldn't be allowed)
+			// file can end with a semicolon -- which isn't allowed)
 			if(nextToken == END) {
 				error("Syntax Error", "Unnecessary \';\' found at the end of the statement");
 			}
@@ -474,7 +474,7 @@ public class RecursiveDescentParser {
 	
 	//<-------------------------------GETNONBLANK--------------------------------
 	static void getNonBlank() {
-		// While the next input is a whitespace, continue past it
+		// While the next input is a whitespace or linebreak, continue past it
 		while(Character.isWhitespace(nextChar) || nextChar == '\n') {
 			// Increase the line number
 			if(nextChar == '\n') {
@@ -486,6 +486,7 @@ public class RecursiveDescentParser {
 	
 	
 	//<-------------------------------ADDCHAR--------------------------------
+	// Adds a character to the lexeme buffer array
 	public static void addChar() {
 		if(lexLen <= 98) {
 			lexeme[lexLen++] = nextChar;
@@ -497,6 +498,7 @@ public class RecursiveDescentParser {
 	
 	
 	//<-------------------------------GETCHAR--------------------------------
+	// Gets the next char from file and classifies it
 	public static void getChar() {
 		// If it is not EOF
 		try {
@@ -564,7 +566,6 @@ public class RecursiveDescentParser {
 			// Reset the errors boolean and lineNumber
 			hasError = false;
 			lineNumber = 0;
-		
 			
 			// Start the parser
 			program();
